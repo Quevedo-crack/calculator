@@ -16,14 +16,14 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
-    - name: Restore (UWP project)
-      run: dotnet restore src/Calculator/Calculator.UWP/Calculator.UWP.csproj
+    - name: Restore (Skia.Gtk project)
+      run: dotnet restore src/Calculator/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj
 
-    - name: Publish EXE (UWP desktop)
-      run: dotnet publish src/Calculator/Calculator.UWP/Calculator.UWP.csproj -c Release -f net9.0-windows10.0.19041.0 -r win-x64 -p:SelfContained=true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true
+    - name: Publish EXE (Skia desktop)
+      run: dotnet publish src/Calculator/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj -c Release -f net9.0-desktop -r win-x64 -p:SelfContained=true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: UnoCalculatorEXE
-        path: src/Calculator/Calculator.UWP/bin/Release/net9.0-windows10.0.19041.0/win-x64/publish/
+        path: src/Calculator/Calculator.Skia.Gtk/bin/Release/net9.0-desktop/win-x64/publish/
