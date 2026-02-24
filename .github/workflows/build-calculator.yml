@@ -26,9 +26,9 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    # 4. Compilar CalcManager (C++)
+    # 4. Compilar CalcManager (C++) forzando SDK y toolset
     - name: Build CalcManager (C++)
-      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64
+      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0.19041.0 /p:PlatformToolset=v143
 
     # 5. Restaurar dependencias del WPF
     - name: Restore dependencies
