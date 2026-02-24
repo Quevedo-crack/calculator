@@ -19,37 +19,29 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.3.1
 
-    # Instala los C++ Build Tools necesarios
     - name: Install C++ Build Tools
       run: |
         choco install visualstudio2022buildtools --yes --ignore-checksums --force
         choco install visualstudio2022-workload-vctools --yes --ignore-checksums --force
 
-    # Compila el proyecto C++ CalcManager.Win32
     - name: Build CalcManager.Win32 (DLL)
-      run: msbuild ./src/CalcManager.Win32/CalcManager.Win32.vcxproj /p:Configuration=Release /p:Platform=x64 /p:OutDir=bin\Release\
+      run: msbuild ./src/CalcManager.Win32/CalcManager.Win32.vcxproj /p:Configuration=Release /p:Platform=x64 /p:OutDir=bin\Release\x64\
 
-    # Verifica que el DLL se generó
     - name: List CalcManager build output
-      run: dir src\CalcManager.Win32\bin\Release
+      run: dir src\CalcManager.Win32\bin\Release\x64
 
-    # Restaura dependencias del proyecto Skia.Gtk
     - name: Restore Calculator.Skia.Gtk
       run: dotnet restore ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj
 
-    # Publica el EXE con carpeta completa
     - name: Publish Calculator.Skia.Gtk (full folder)
       run: dotnet publish ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj -c Release -f net9.0 -r win-x64 -p:SelfContained=true -p:PublishSingleFile=false
 
-    # Copia el DLL generado al publish
     - name: Copy CalcManager DLL to publish folder
-      run: copy src\CalcManager.Win32\bin\Release\CalcManager.dll src\Calculator.Skia.Gtk\bin\Release\net9.0\win-x64\publish\
+      run: copy src\CalcManager.Win32\bin\Release\x64\CalcManager.dll src\Calculator.Skia.Gtk\bin\Release\net9.0\win-x64\publish\
 
-    # Verifica que el DLL está en publish
     - name: List publish folder
       run: dir src\Calculator.Skia.Gtk\bin\Release\net9.0\win-x64\publish
 
-    # Sube la carpeta completa como artifact
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
