@@ -32,20 +32,14 @@ jobs:
             /p:Configuration=Release /p:Platform=x64 `
             /p:OutDir=${{ github.workspace }}\artifacts\CalcManager\
 
-      # Diagnóstico: listar todo lo generado en CalcManager
-      - name: Diagnose native build output
-        run: Get-ChildItem -Recurse ${{ github.workspace }}\artifacts\CalcManager
-
-      # Copiar la DLL si existe, o mostrar todo lo generado si no
-      - name: Copy native DLL to publish
+      # Verificar que la DLL se generó
+      - name: Check native DLL
         run: |
-          $dll = Get-ChildItem -Recurse -File src\CalcManager.Win32 | Where-Object { $_.Name -eq "CalcManager.dll" }
-          if ($dll) {
-            Write-Host "✅ DLL encontrado en $($dll.FullName)"
-            Copy-Item $dll.FullName "${{ github.workspace }}\publish\" -Force
+          if (Test-Path "${{ github.workspace }}\artifacts\CalcManager\CalcManager.dll") {
+            Write-Host "✅ DLL encontrada"
           } else {
-            Write-Warning "⚠️ No se generó CalcManager.dll. Se encontraron estos archivos en CalcManager.Win32:"
-            Get-ChildItem -Recurse -File src\CalcManager.Win32
+            Write-Error "❌ No se generó CalcManager.dll"
+            exit 1
           }
 
       # Publicar la app Skia.Gtk (carpeta completa)
@@ -58,6 +52,11 @@ jobs:
             --self-contained true `
             -p:PublishSingleFile=false `
             -o ${{ github.workspace }}\publish
+
+      # Copiar la DLL nativa a la carpeta de publicación
+      - name: Copy native DLL to publish
+        run: |
+          Copy-Item ${{ github.workspace }}\artifacts\CalcManager\CalcManager.dll ${{ github.workspace }}\publish\ -Force
 
       # Listar el contenido para verificar
       - name: List publish folder
