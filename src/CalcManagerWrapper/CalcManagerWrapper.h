@@ -1,6 +1,8 @@
 #pragma once
 using namespace System;
 
+class StandardCalculatorManager; // forward declaration del motor nativo
+
 namespace CalcManagerWrapper
 {
     public ref class StandardCalculatorManagerWrapper
