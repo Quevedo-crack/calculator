@@ -17,16 +17,16 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: List files
-      run: dir calculator\src\Calculator.Skia.Gtk
+      run: dir src\Calculator.Skia.Gtk
 
     - name: Restore (Skia.Gtk project)
-      run: dotnet restore ./calculator/src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj
+      run: dotnet restore ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj
 
     - name: Publish EXE (Skia desktop)
-      run: dotnet publish ./calculator/src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj -c Release -f net9.0 -r win-x64 -p:SelfContained=true -p:PublishSingleFile=true
+      run: dotnet publish ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj -c Release -f net9.0 -r win-x64 -p:SelfContained=true -p:PublishSingleFile=true
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: UnoCalculatorEXE
-        path: calculator/src/Calculator/Calculator.Skia.Gtk/bin/Release/net9.0/win-x64/publish/
+        path: src/Calculator.Skia.Gtk/bin/Release/net9.0/win-x64/publish/
