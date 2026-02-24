@@ -23,17 +23,17 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    # Instalar SDK 22000
-    - name: Install Windows 10 SDK 22000
-      run: choco install windows-sdk-10-version-21H2-all -y
+    # Instalar SDK 19041 (Windows 10 May 2020 Update)
+    - name: Install Windows 10 SDK 19041
+      run: choco install windows-sdk-10-version-2004-all -y
 
     # 1. Compilar CalcManager (C++)
     - name: Build CalcManager (C++)
-      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.22000.0
+      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.19041.0
 
     # 2. Compilar CalcManagerWrapper (C++/CLI)
     - name: Build CalcManagerWrapper (C++/CLI)
-      run: msbuild src/CalcManagerWrapper/CalcManagerWrapper.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.22000.0
+      run: msbuild src/CalcManagerWrapper/CalcManagerWrapper.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.19041.0
 
     # 3. Restaurar dependencias del WPF
     - name: Restore dependencies
