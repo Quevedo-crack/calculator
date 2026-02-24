@@ -1,14 +1,16 @@
 #pragma once
-using namespace System;
 
-class StandardCalculatorManager; // forward declaration
+// Incluye el header del motor nativo
+#include "..\\CalcManager\\CalculatorManager.h"
+
+using namespace System;
 
 namespace CalcManagerWrapper
 {
     public ref class StandardCalculatorManagerWrapper
     {
     private:
-        StandardCalculatorManager* nativeManager;
+        CalculatorManager* nativeManager;  // Usar CalculatorManager
 
     public:
         StandardCalculatorManagerWrapper();
