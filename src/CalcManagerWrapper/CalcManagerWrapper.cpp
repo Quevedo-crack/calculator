@@ -1,21 +1,38 @@
 #include "CalcManagerWrapper.h"
-#include "..\\CalcManager\\CalculatorManager.h"  // cabecera nativa
+#include "..\\CalcManager\\CalculatorManager.h"
+#include <msclr/marshal_cppstd.h>
 
 using namespace CalcManagerWrapper;
+using namespace msclr::interop;
 
 StandardCalculatorManagerWrapper::StandardCalculatorManagerWrapper()
 {
-    // Inicialización del motor nativo si hace falta
+    nativeManager = new StandardCalculatorManager();
+}
+
+StandardCalculatorManagerWrapper::~StandardCalculatorManagerWrapper()
+{
+    delete nativeManager;
 }
 
 void StandardCalculatorManagerWrapper::Init()
 {
-    // Aquí llamarías a la inicialización real del motor nativo
-    // Ejemplo: StandardCalculatorManager::Initialize();
+    nativeManager->Initialize();
 }
 
-double StandardCalculatorManagerWrapper::Add(double a, double b)
+void StandardCalculatorManagerWrapper::ProcessCommand(String^ command)
 {
-    // Ejemplo simple: en realidad deberías llamar a la función nativa
-    return a + b;
+    std::wstring cmd = marshal_as<std::wstring>(command);
+    nativeManager->ProcessCommand(cmd);
+}
+
+String^ StandardCalculatorManagerWrapper::GetDisplayText()
+{
+    std::wstring text = nativeManager->GetDisplayText();
+    return gcnew String(text.c_str());
+}
+
+void StandardCalculatorManagerWrapper::Clear()
+{
+    nativeManager->Clear();
 }
