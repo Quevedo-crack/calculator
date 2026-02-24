@@ -1,4 +1,8 @@
 #include "CalcManagerWrapper.h"
+
+// Evitar conflicto con IServiceProvider de .NET
+#undef IServiceProvider
+
 #include "..\\CalcManager\\CalculatorManager.h"
 #include <msclr/marshal_cppstd.h>
 
