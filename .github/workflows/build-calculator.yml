@@ -23,16 +23,23 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    # Compilar CalcManager (C++) usando el SDK retargeteado y toolset v143
+    # 1. Compilar CalcManager (C++)
     - name: Build CalcManager (C++)
-      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143
+      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.22000.0
 
+    # 2. Compilar CalcManagerWrapper (C++/CLI)
+    - name: Build CalcManagerWrapper (C++/CLI)
+      run: msbuild src/CalcManagerWrapper/CalcManagerWrapper.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143
+
+    # 3. Restaurar dependencias del WPF
     - name: Restore dependencies
       run: dotnet restore src/Calculator.Skia.WPF/Calculator.Skia.WPF.csproj
 
+    # 4. Compilar y publicar el WPF
     - name: Build WPF Calculator
       run: dotnet publish src/Calculator.Skia.WPF/Calculator.Skia.WPF.csproj -c Release -r win-x64 --self-contained true -o publish
 
+    # 5. Subir artifact con exe + DLLs
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
@@ -40,3 +47,4 @@ jobs:
         path: |
           publish
           src/CalcManager/x64/Release/CalcManager.dll
+          src/CalcManagerWrapper/x64/Release/CalcManagerWrapper.dll
