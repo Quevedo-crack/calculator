@@ -1,4 +1,4 @@
-name: Build Uno Calculator EXE
+name: Build Uno Calculator Full
 
 on:
   workflow_dispatch:
@@ -16,17 +16,29 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
-    - name: List files
-      run: dir src\Calculator.Skia.Gtk
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3.1
 
-    - name: Restore (Skia.Gtk project)
+    # Compila el proyecto C++ para generar CalcManager.dll
+    - name: Build CalcManager.Win32 (DLL)
+      run: msbuild ./src/CalcManager.Win32/CalcManager.Win32.vcxproj /p:Configuration=Release /p:Platform=x64
+
+    # Restaura dependencias del proyecto Skia.Gtk
+    - name: Restore Calculator.Skia.Gtk
       run: dotnet restore ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj
 
-    - name: Publish EXE (Skia desktop)
-      run: dotnet publish ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj -c Release -f net9.0 -r win-x64 -p:SelfContained=true -p:PublishSingleFile=true
+    # Publica el EXE con carpeta completa (no single file)
+    - name: Publish Calculator.Skia.Gtk (full folder)
+      run: dotnet publish ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj -c Release -f net9.0 -r win-x64 -p:SelfContained=true -p:PublishSingleFile=false
 
+    # Copia el DLL generado al publish
+    - name: Copy CalcManager DLL to publish folder
+      run: |
+        copy src\CalcManager.Win32\x64\Release\CalcManager.dll src\Calculator.Skia.Gtk\bin\Release\net9.0\win-x64\publish\
+
+    # Sube la carpeta completa como artifact
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: UnoCalculatorEXE
+        name: UnoCalculatorFull
         path: src/Calculator.Skia.Gtk/bin/Release/net9.0/win-x64/publish/
