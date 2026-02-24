@@ -1,7 +1,7 @@
 #pragma once
 using namespace System;
 
-class StandardCalculatorManager; // forward declaration del motor nativo
+class StandardCalculatorManager; // forward declaration
 
 namespace CalcManagerWrapper
 {
