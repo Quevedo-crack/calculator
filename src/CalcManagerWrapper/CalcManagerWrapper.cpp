@@ -1,5 +1,5 @@
+#define WIN32_LEAN_AND_MEAN
 #include "CalcManagerWrapper.h"
-#include "..\\CalcManager\\CalculatorManager.h"
 #include <msclr/marshal_cppstd.h>
 
 using namespace CalcManagerWrapper;
@@ -7,7 +7,7 @@ using namespace msclr::interop;
 
 StandardCalculatorManagerWrapper::StandardCalculatorManagerWrapper()
 {
-    nativeManager = new StandardCalculatorManager();
+    nativeManager = new CalculatorManager();  // Usar CalculatorManager
 }
 
 StandardCalculatorManagerWrapper::~StandardCalculatorManagerWrapper()
@@ -17,22 +17,22 @@ StandardCalculatorManagerWrapper::~StandardCalculatorManagerWrapper()
 
 void StandardCalculatorManagerWrapper::Init()
 {
-    nativeManager->Initialize();
+    nativeManager->Initialize();  // Verifica que el método exista en CalculatorManager
 }
 
 void StandardCalculatorManagerWrapper::ProcessCommand(String^ command)
 {
     std::wstring cmd = marshal_as<std::wstring>(command);
-    nativeManager->ProcessCommand(cmd);
+    nativeManager->ProcessCommand(cmd);  // Ajusta al nombre real del método
 }
 
 String^ StandardCalculatorManagerWrapper::GetDisplayText()
 {
-    std::wstring text = nativeManager->GetDisplayText();
+    std::wstring text = nativeManager->GetDisplayText();  // Ajusta al nombre real del método
     return gcnew String(text.c_str());
 }
 
 void StandardCalculatorManagerWrapper::Clear()
 {
-    nativeManager->Clear();
+    nativeManager->Clear();  // Ajusta al nombre real del método
 }
