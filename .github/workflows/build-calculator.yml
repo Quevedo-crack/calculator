@@ -1,4 +1,4 @@
-name: Build Calculator WPF with C++
+name: Build Uno Calculator WPF with C++
 
 on:
   push:
@@ -43,7 +43,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Calculator-WPF
+        name: UnoCalculator
         path: |
           publish
           src/CalcManager/x64/Release/CalcManager.dll
