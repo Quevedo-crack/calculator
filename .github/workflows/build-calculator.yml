@@ -12,33 +12,30 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    # 1. Descargar el repo
     - name: Checkout repo
       uses: actions/checkout@v4
 
-    # 2. Instalar .NET 9
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
 
-    # 3. Instalar MSBuild (para compilar C++)
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    # 4. Compilar CalcManager (C++) forzando SDK y toolset
+    # Instalar SDK 19041
+    - name: Install Windows 10 SDK 19041
+      run: choco install windows-sdk-10-version-2004-all -y
+
     - name: Build CalcManager (C++)
       run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0.19041.0 /p:PlatformToolset=v143
 
-    # 5. Restaurar dependencias del WPF
     - name: Restore dependencies
       run: dotnet restore src/Calculator.Skia.WPF/Calculator.Skia.WPF.csproj
 
-    # 6. Compilar y publicar el WPF
     - name: Build WPF Calculator
       run: dotnet publish src/Calculator.Skia.WPF/Calculator.Skia.WPF.csproj -c Release -r win-x64 --self-contained true -o publish
 
-    # 7. Subir el artifact con el .exe y la DLL
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
