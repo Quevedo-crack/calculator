@@ -1,14 +1,30 @@
 using CalcManagerWrapper;
+using System.Windows;
 
-public partial class MainWindow : Window
+namespace Calculator
 {
-    public MainWindow()
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
+        private StandardCalculatorManagerWrapper manager;
 
-        var manager = new StandardCalculatorManagerWrapper();
-        manager.Init();
-        double result = manager.Add(5, 7);
-        MessageBox.Show($"Resultado: {result}");
+        public MainWindow()
+        {
+            InitializeComponent();
+            manager = new StandardCalculatorManagerWrapper();
+            manager.Init();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            string cmd = (string)((System.Windows.Controls.Button)sender).Content;
+            manager.ProcessCommand(cmd);
+            Display.Text = manager.GetDisplayText();
+        }
+
+        private void Clear_Click(object sender, RoutedEventArgs e)
+        {
+            manager.Clear();
+            Display.Text = "";
+        }
     }
 }
