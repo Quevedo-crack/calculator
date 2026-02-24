@@ -16,9 +16,6 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Install Uno workloads
-        run: dotnet workload install uno
-
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
