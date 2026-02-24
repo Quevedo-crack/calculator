@@ -6,9 +6,16 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <!-- Referencia al proyecto compartido en C# -->
   <ItemGroup>
-    <ProjectReference Include="..\CalcManager\CalcManager.csproj" />
     <ProjectReference Include="..\Calculator.Shared\Calculator.Shared.csproj" />
+  </ItemGroup>
+
+  <!-- Referencia directa a la DLL compilada de CalcManager (C++) -->
+  <ItemGroup>
+    <Reference Include="CalcManager">
+      <HintPath>..\CalcManager\x64\Release\CalcManager.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
