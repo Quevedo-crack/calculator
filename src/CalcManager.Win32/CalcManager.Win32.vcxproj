@@ -218,6 +218,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <OutputFile>$(OutDir)CalcManager.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
