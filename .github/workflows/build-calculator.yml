@@ -1,4 +1,4 @@
-name: Build Uno Calculator Full
+name: Build Uno Calculator (Skia.Gtk)
 
 on:
   workflow_dispatch:
@@ -8,56 +8,70 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 9.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.3.1
+      - name: Install Uno workloads
+        run: dotnet workload install uno
 
-    - name: Install C++ Build Tools
-      run: |
-        choco install visualstudio2022buildtools --yes --ignore-checksums --force
-        choco install visualstudio2022-workload-vctools --yes --ignore-checksums --force
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
 
-    # Compila el proyecto C++ como DLL
-    - name: Build CalcManager.Win32 (DLL)
-      run: msbuild ./src/CalcManager.Win32/CalcManager.Win32.vcxproj /p:Configuration=Release /p:Platform=x64
+      # Instalar herramientas de C++ (necesarias para CalcManager)
+      - name: Install C++ Build Tools
+        run: |
+          choco install visualstudio2022buildtools --yes --no-progress
+          choco install visualstudio2022-workload-vctools --yes --no-progress
 
-    # Diagnóstico: lista todo lo que se generó en CalcManager.Win32
-    - name: Diagnose CalcManager build output
-      run: Get-ChildItem -Recurse -File src\CalcManager.Win32
+      # Compilar la DLL nativa y dejarla en una carpeta conocida
+      - name: Build CalcManager (Native)
+        run: |
+          msbuild src/CalcManager.Win32/CalcManager.Win32.vcxproj `
+            /p:Configuration=Release /p:Platform=x64 `
+            /p:OutDir=${{ github.workspace }}\artifacts\CalcManager\
 
-    # Restaura dependencias del proyecto Skia.Gtk
-    - name: Restore Calculator.Skia.Gtk
-      run: dotnet restore ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj
+      # Diagnóstico: listar todo lo generado
+      - name: Diagnose native build output
+        run: Get-ChildItem -Recurse ${{ github.workspace }}\artifacts\CalcManager
 
-    # Publica el EXE con carpeta completa
-    - name: Publish Calculator.Skia.Gtk (full folder)
-      run: dotnet publish ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj -c Release -f net9.0 -r win-x64 -p:SelfContained=true -p:PublishSingleFile=false
+      # Verificar que la DLL se generó
+      - name: Check native DLL
+        run: |
+          if (Test-Path "${{ github.workspace }}\artifacts\CalcManager\CalcManager.dll") {
+            Write-Host "✅ DLL encontrada"
+          } else {
+            Write-Error "❌ No se generó CalcManager.dll"
+            exit 1
+          }
 
-    # Copia el DLL generado al publish (si existe)
-    - name: Copy CalcManager DLL to publish folder
-      run: |
-        $dll = Get-ChildItem -Recurse -File src\CalcManager.Win32 | Where-Object { $_.Name -eq "CalcManager.dll" }
-        if ($dll) {
-          Copy-Item $dll.FullName "src\Calculator.Skia.Gtk\bin\Release\net9.0\win-x64\publish\"
-        } else {
-          Write-Error "ERROR: CalcManager.dll no se generó. Revisa el log de MSBuild."
-          exit 1
-        }
+      # Publicar la app Skia.Gtk (carpeta completa)
+      - name: Publish Calculator.Skia.Gtk
+        run: |
+          dotnet publish src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj `
+            -c Release `
+            -f net9.0 `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=false `
+            -o ${{ github.workspace }}\publish
 
-    # Diagnóstico: lista la carpeta publish para confirmar que el DLL y el EXE están juntos
-    - name: List publish folder
-      run: Get-ChildItem "src\Calculator.Skia.Gtk\bin\Release\net9.0\win-x64\publish"
+      # Copiar la DLL nativa a la carpeta de publicación
+      - name: Copy native DLL to publish
+        run: |
+          Copy-Item ${{ github.workspace }}\artifacts\CalcManager\CalcManager.dll ${{ github.workspace }}\publish\ -Force
 
-    # Sube la carpeta completa como artifact
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: UnoCalculatorFull
-        path: src/Calculator.Skia.Gtk/bin/Release/net9.0/win-x64/publish/
+      # Listar el contenido para verificar
+      - name: List publish folder
+        run: Get-ChildItem -Recurse ${{ github.workspace }}\publish
+
+      # Subir el artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UnoCalculator-Skia
+          path: ${{ github.workspace }}\publish
