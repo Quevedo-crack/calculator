@@ -25,11 +25,19 @@ jobs:
 
     # 1. Compilar CalcManager (C++)
     - name: Build CalcManager (C++)
-      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.20348.0
+      run: msbuild src/CalcManager/CalcManager.vcxproj ^
+        /p:Configuration=Release ^
+        /p:Platform=x64 ^
+        /p:PlatformToolset=v143 ^
+        /p:WindowsTargetPlatformVersion=10.0.19041.0
 
     # 2. Compilar CalcManagerWrapper (C++/CLI)
     - name: Build CalcManagerWrapper (C++/CLI)
-      run: msbuild src/CalcManagerWrapper/CalcManagerWrapper.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143
+      run: msbuild src/CalcManagerWrapper/CalcManagerWrapper.vcxproj ^
+        /p:Configuration=Release ^
+        /p:Platform=x64 ^
+        /p:PlatformToolset=v143 ^
+        /p:WindowsTargetPlatformVersion=10.0.19041.0
 
     # 3. Restaurar dependencias del WPF
     - name: Restore dependencies
