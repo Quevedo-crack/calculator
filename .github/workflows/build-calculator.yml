@@ -24,31 +24,38 @@ jobs:
         choco install visualstudio2022buildtools --yes --ignore-checksums --force
         choco install visualstudio2022-workload-vctools --yes --ignore-checksums --force
 
+    # Compila el proyecto C++ como DLL
     - name: Build CalcManager.Win32 (DLL)
       run: msbuild ./src/CalcManager.Win32/CalcManager.Win32.vcxproj /p:Configuration=Release /p:Platform=x64
 
-    - name: List CalcManager build output
-      run: Get-ChildItem "src\CalcManager.Win32\x64\Release"
+    # Diagnóstico: lista todo lo que se generó en CalcManager.Win32
+    - name: Diagnose CalcManager build output
+      run: Get-ChildItem -Recurse -File src\CalcManager.Win32
 
+    # Restaura dependencias del proyecto Skia.Gtk
     - name: Restore Calculator.Skia.Gtk
       run: dotnet restore ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj
 
+    # Publica el EXE con carpeta completa
     - name: Publish Calculator.Skia.Gtk (full folder)
       run: dotnet publish ./src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj -c Release -f net9.0 -r win-x64 -p:SelfContained=true -p:PublishSingleFile=false
 
+    # Copia el DLL generado al publish (si existe)
     - name: Copy CalcManager DLL to publish folder
       run: |
-        if (Test-Path "src\CalcManager.Win32\x64\Release\CalcManager.dll") {
-          Copy-Item "src\CalcManager.Win32\x64\Release\CalcManager.dll" "src\Calculator.Skia.Gtk\bin\Release\net9.0\win-x64\publish\"
+        $dll = Get-ChildItem -Recurse -File src\CalcManager.Win32 | Where-Object { $_.Name -eq "CalcManager.dll" }
+        if ($dll) {
+          Copy-Item $dll.FullName "src\Calculator.Skia.Gtk\bin\Release\net9.0\win-x64\publish\"
         } else {
           Write-Error "ERROR: CalcManager.dll no se generó. Revisa el log de MSBuild."
-          Get-ChildItem "src\CalcManager.Win32\x64\Release"
           exit 1
         }
 
+    # Diagnóstico: lista la carpeta publish para confirmar que el DLL y el EXE están juntos
     - name: List publish folder
       run: Get-ChildItem "src\Calculator.Skia.Gtk\bin\Release\net9.0\win-x64\publish"
 
+    # Sube la carpeta completa como artifact
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
