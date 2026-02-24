@@ -1,4 +1,4 @@
-name: Build Calculator WPF
+name: Build Calculator WPF with C++
 
 on:
   push:
@@ -19,6 +19,12 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build CalcManager (C++)
+      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64
 
     - name: Restore dependencies
       run: dotnet restore src/Calculator.Skia.WPF/Calculator.Skia.WPF.csproj
