@@ -16,10 +16,10 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
-    - name: Restore
-      run: dotnet restore src/Calculator.sln
+    - name: Restore (WinUI only)
+      run: dotnet restore src/Calculator/Calculator.WinUI/Calculator.WinUI.csproj
 
-    - name: Publish EXE
+    - name: Publish EXE (WinUI desktop)
       run: dotnet publish src/Calculator/Calculator.WinUI/Calculator.WinUI.csproj -c Release -f net9.0-desktop -r win-x64 -p:SelfContained=true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true
 
     - name: Upload artifact
