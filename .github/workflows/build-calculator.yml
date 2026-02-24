@@ -1,0 +1,29 @@
+name: Build Uno Calculator EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Restore
+      run: dotnet restore src/Calculator.sln
+
+    - name: Publish EXE
+      run: dotnet publish src/Calculator/Calculator.WinUI/Calculator.WinUI.csproj -c Release -f net9.0-desktop -r win-x64 -p:SelfContained=true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: UnoCalculatorEXE
+        path: src/Calculator/Calculator.WinUI/bin/Release/net9.0-desktop/win-x64/publish/
