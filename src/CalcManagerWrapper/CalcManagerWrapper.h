@@ -1,5 +1,4 @@
 #pragma once
-
 using namespace System;
 
 namespace CalcManagerWrapper
@@ -9,6 +8,6 @@ namespace CalcManagerWrapper
     public:
         StandardCalculatorManagerWrapper();
         void Init();
-        int Add(int a, int b);
+        double Add(double a, double b);
     };
 }
