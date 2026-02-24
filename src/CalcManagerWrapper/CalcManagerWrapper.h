@@ -1,6 +1,6 @@
 #pragma once
 
-// Incluye el header del motor nativo
+// Incluye el header correcto del motor
 #include "..\\CalcManager\\CalculatorManager.h"
 
 using namespace System;
