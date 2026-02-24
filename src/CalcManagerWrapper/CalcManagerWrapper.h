@@ -5,9 +5,16 @@ namespace CalcManagerWrapper
 {
     public ref class StandardCalculatorManagerWrapper
     {
+    private:
+        StandardCalculatorManager* nativeManager;
+
     public:
         StandardCalculatorManagerWrapper();
+        ~StandardCalculatorManagerWrapper();
+
         void Init();
-        double Add(double a, double b);
+        void ProcessCommand(String^ command);
+        String^ GetDisplayText();
+        void Clear();
     };
 }
