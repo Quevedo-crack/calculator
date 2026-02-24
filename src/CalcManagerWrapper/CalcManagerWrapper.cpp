@@ -14,7 +14,7 @@ void StandardCalculatorManagerWrapper::Init()
     // Ejemplo: StandardCalculatorManager::Initialize();
 }
 
-int StandardCalculatorManagerWrapper::Add(int a, int b)
+double StandardCalculatorManagerWrapper::Add(double a, double b)
 {
     // Ejemplo simple: en realidad deberías llamar a la función nativa
     return a + b;
