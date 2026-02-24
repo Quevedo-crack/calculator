@@ -1,14 +1,4 @@
 #include "CalcManagerWrapper.h"
-
-// Evitar conflicto entre COM y .NET IServiceProvider
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#undef IServiceProvider
-
-#include <windows.h>
-#include <objbase.h>
-#include <servprov.h>
-
 #include "..\\CalcManager\\CalculatorManager.h"
 #include <msclr/marshal_cppstd.h>
 
