@@ -1,10 +1,6 @@
-name: Build Uno Calculator WPF with C++
+name: Build WPF Calculator (Desktop Static)
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -23,47 +19,30 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    # Instalar SDK de Windows (solo si es necesario, pero rápido)
-    - name: Install Windows 10 SDK 19041
+    # Instalar Windows SDK 10.0.19041.0 para aplicaciones de escritorio
+    - name: Install Windows 10 SDK 19041 (Desktop)
       uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
       with:
         sdk-version: 19041
+        desktop: true   # <-- importante para que instale la versión para Desktop
 
-    # 1. Compilar CalcManager (C++) con runtime dinámico (/MD) - es lo que permite el proyecto UWP
+    # Compilar CalcManager (DLL nativa con runtime estático)
     - name: Build CalcManager (C++)
       run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.19041.0 /p:LanguageStandard=stdcpp17
 
-    # 2. Restaurar dependencias del WPF
+    # Restaurar dependencias del WPF
     - name: Restore dependencies
       run: dotnet restore src/Calculator.Skia.WPF/Calculator.Skia.WPF.csproj
 
-    # 3. Publicar el WPF como ejecutable autocontenido (un solo archivo .exe)
+    # Publicar el WPF como ejecutable autocontenido (un solo archivo .exe)
     - name: Publish WPF Calculator
       run: dotnet publish src/Calculator.Skia.WPF/Calculator.Skia.WPF.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
 
-    # 4. Copiar la DLL nativa (CalcManager.dll) a la carpeta de publicación
-    - name: Copy native CalcManager.dll
-      run: |
-        Copy-Item "src/CalcManager/x64/Release/CalcManager/CalcManager.dll" -Destination "publish/CalcManager.dll" -Force
+    # Copiar la DLL nativa a la carpeta de publicación
+    - name: Copy native DLL
+      run: Copy-Item "src/CalcManager/x64/Release/CalcManager/CalcManager.dll" -Destination "publish/CalcManager.dll" -Force
 
-    # 5. Copiar las DLLs del runtime de C++ (para que no sea necesario instalar VC++ Redist)
-    - name: Copy VC++ runtime DLLs
-      run: |
-        $vcRedistDir = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\v143\onecore\x64"
-        if (Test-Path $vcRedistDir) {
-          Copy-Item "$vcRedistDir\vcruntime140.dll" -Destination "publish\" -Force
-          Copy-Item "$vcRedistDir\vcruntime140_1.dll" -Destination "publish\" -Force
-          Copy-Item "$vcRedistDir\msvcp140.dll" -Destination "publish\" -Force
-          Copy-Item "$vcRedistDir\msvcp140_1.dll" -Destination "publish\" -Force
-          Copy-Item "$vcRedistDir\msvcp140_2.dll" -Destination "publish\" -Force
-          Copy-Item "$vcRedistDir\vccorlib140.dll" -Destination "publish\" -Force
-        } else {
-          Write-Host "No se encontró el directorio de redist, copiando desde System32"
-          Copy-Item "C:\Windows\System32\vcruntime140.dll" -Destination "publish\" -Force
-          Copy-Item "C:\Windows\System32\msvcp140.dll" -Destination "publish\" -Force
-        }
-
-    # 6. Subir artifact (carpeta con el .exe, la DLL nativa y las DLLs de VC++)
+    # Subir artifact
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
