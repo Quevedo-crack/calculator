@@ -1,30 +1,22 @@
-using CalcManagerWrapper;
 using System.Windows;
+using Calculator.Skia.WPF.ViewModels;
 
-namespace Calculator
+namespace Calculator.Skia.WPF
 {
     public partial class MainWindow : Window
     {
-        private StandardCalculatorManagerWrapper manager;
-
         public MainWindow()
         {
             InitializeComponent();
-            manager = new StandardCalculatorManagerWrapper();
-            manager.Init();
+            this.Loaded += (s, e) => (DataContext as CalculatorViewModel)?.Initialize();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            string cmd = (string)((System.Windows.Controls.Button)sender).Content;
-            manager.ProcessCommand(cmd);
-            Display.Text = manager.GetDisplayText();
-        }
-
-        private void Clear_Click(object sender, RoutedEventArgs e)
-        {
-            manager.Clear();
-            Display.Text = "";
+            if (sender is System.Windows.Controls.Button btn && btn.Tag is string cmd)
+            {
+                (DataContext as CalculatorViewModel)?.SendCommand(cmd);
+            }
         }
     }
 }
