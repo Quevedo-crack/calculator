@@ -23,6 +23,12 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
+    # Instalar el SDK de Windows 10 versión 19041 (rápido, sin Chocolatey)
+    - name: Install Windows 10 SDK 19041
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+      with:
+        sdk-version: 19041
+
     # 1. Compilar CalcManager (C++) - genera la DLL nativa
     - name: Build CalcManager (C++)
       run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.19041.0 /p:LanguageStandard=stdcpp17
