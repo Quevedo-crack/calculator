@@ -19,6 +19,15 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
+    # Instalar Windows SDK 10.0.19041.0 para Desktop C++
+    - name: Install Windows SDK 19041 (Desktop)
+      run: |
+        # Descargar el instalador web del SDK
+        Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?linkid=2120843" -OutFile "winsdk.exe"
+        # Instalar solo los componentes necesarios para C++ de escritorio
+        Start-Process -Wait -FilePath "winsdk.exe" -ArgumentList "/quiet /norestart /features OptionId.DesktopCPP"
+        Remove-Item "winsdk.exe"
+
     # Compilar CalcManager (UWP, runtime dinámico)
     - name: Build CalcManager
       run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v142 /p:WindowsTargetPlatformVersion=10.0.19041.0 /p:LanguageStandard=stdcpp17
@@ -51,7 +60,6 @@ jobs:
           Copy-Item "$vcRedistDir\msvcp140_2.dll" -Destination "publish\" -Force
           Copy-Item "$vcRedistDir\vccorlib140.dll" -Destination "publish\" -Force
         } else {
-          # Fallback
           Copy-Item "C:\Windows\System32\vcruntime140.dll" -Destination "publish\" -Force
           Copy-Item "C:\Windows\System32\msvcp140.dll" -Destination "publish\" -Force
         }
