@@ -1,0 +1,68 @@
+name: Build Portable GTK Calculator (No install)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    # Compilar CalcManager (UWP, runtime dinámico)
+    - name: Build CalcManager
+      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v142 /p:WindowsTargetPlatformVersion=10.0.19041.0 /p:LanguageStandard=stdcpp17
+
+    # Publicar Skia.Gtk (carpeta completa, no single-file)
+    - name: Publish Skia.Gtk
+      run: |
+        dotnet publish src/Calculator.Skia.Gtk/Calculator.Skia.Gtk.csproj `
+          -c Release `
+          -f net9.0 `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=false `
+          -o publish
+
+    # Copiar CalcManager.dll a la carpeta de publicación
+    - name: Copy native CalcManager.dll
+      run: |
+        Copy-Item "src/CalcManager/x64/Release/CalcManager/CalcManager.dll" -Destination "publish/CalcManager.dll" -Force
+
+    # Copiar las DLLs del runtime de C++ (VC++ redistributable)
+    - name: Copy VC++ runtime DLLs
+      run: |
+        $vcRedistDir = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\v143\onecore\x64"
+        if (Test-Path $vcRedistDir) {
+          Copy-Item "$vcRedistDir\vcruntime140.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\vcruntime140_1.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\msvcp140.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\msvcp140_1.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\msvcp140_2.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\vccorlib140.dll" -Destination "publish\" -Force
+        } else {
+          # Fallback
+          Copy-Item "C:\Windows\System32\vcruntime140.dll" -Destination "publish\" -Force
+          Copy-Item "C:\Windows\System32\msvcp140.dll" -Destination "publish\" -Force
+        }
+
+    # Comprimir toda la carpeta publish en un zip
+    - name: Compress to zip
+      run: Compress-Archive -Path publish\* -DestinationPath CalculatorPortable.zip -Force
+
+    # Subir el zip como artifact
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Calculator-Portable
+        path: CalculatorPortable.zip
