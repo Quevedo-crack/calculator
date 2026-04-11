@@ -13,15 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Referencia a los archivos de modelo (se añadirán después) -->
     <Compile Include="Models\*.cs" />
     <Compile Include="ViewModels\*.cs" />
   </ItemGroup>
-
-  <!-- Para depuración local, copia la DLL nativa si existe -->
-  <Target Name="CopyNativeDLL" AfterTargets="AfterBuild">
-    <Copy SourceFiles="$(SolutionDir)artifacts\CalcManager\CalcManager.Win32.dll" DestinationFolder="$(OutDir)" Condition="Exists('$(SolutionDir)artifacts\CalcManager\CalcManager.Win32.dll')" />
-    <Move SourceFiles="$(OutDir)CalcManager.Win32.dll" DestinationFiles="$(OutDir)CalcManager.dll" Condition="Exists('$(OutDir)CalcManager.Win32.dll')" />
-  </Target>
 
 </Project>
