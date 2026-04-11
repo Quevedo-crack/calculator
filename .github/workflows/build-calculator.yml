@@ -23,13 +23,13 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    # Instalar el SDK de Windows 10 versión 19041 (rápido, sin Chocolatey)
+    # Instalar SDK de Windows (solo si es necesario, pero rápido)
     - name: Install Windows 10 SDK 19041
       uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
       with:
         sdk-version: 19041
 
-    # 1. Compilar CalcManager (C++) - genera la DLL nativa
+    # 1. Compilar CalcManager (C++) con runtime dinámico (/MD) - es lo que permite el proyecto UWP
     - name: Build CalcManager (C++)
       run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.19041.0 /p:LanguageStandard=stdcpp17
 
@@ -46,7 +46,24 @@ jobs:
       run: |
         Copy-Item "src/CalcManager/x64/Release/CalcManager/CalcManager.dll" -Destination "publish/CalcManager.dll" -Force
 
-    # 5. Subir artifact (carpeta con el .exe y la DLL)
+    # 5. Copiar las DLLs del runtime de C++ (para que no sea necesario instalar VC++ Redist)
+    - name: Copy VC++ runtime DLLs
+      run: |
+        $vcRedistDir = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\v143\onecore\x64"
+        if (Test-Path $vcRedistDir) {
+          Copy-Item "$vcRedistDir\vcruntime140.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\vcruntime140_1.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\msvcp140.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\msvcp140_1.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\msvcp140_2.dll" -Destination "publish\" -Force
+          Copy-Item "$vcRedistDir\vccorlib140.dll" -Destination "publish\" -Force
+        } else {
+          Write-Host "No se encontró el directorio de redist, copiando desde System32"
+          Copy-Item "C:\Windows\System32\vcruntime140.dll" -Destination "publish\" -Force
+          Copy-Item "C:\Windows\System32\msvcp140.dll" -Destination "publish\" -Force
+        }
+
+    # 6. Subir artifact (carpeta con el .exe, la DLL nativa y las DLLs de VC++)
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
