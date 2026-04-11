@@ -19,18 +19,10 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    # Instalar Windows SDK 10.0.19041.0 para Desktop C++
-    - name: Install Windows SDK 19041 (Desktop)
-      run: |
-        # Descargar el instalador web del SDK
-        Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?linkid=2120843" -OutFile "winsdk.exe"
-        # Instalar solo los componentes necesarios para C++ de escritorio
-        Start-Process -Wait -FilePath "winsdk.exe" -ArgumentList "/quiet /norestart /features OptionId.DesktopCPP"
-        Remove-Item "winsdk.exe"
-
-    # Compilar CalcManager (UWP, runtime dinámico)
+    # Compilar CalcManager usando el SDK preinstalado en el runner (10.0.20348.0)
+    # Nota: Solo se cambia la versión en el comando, no en el archivo del proyecto.
     - name: Build CalcManager
-      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v142 /p:WindowsTargetPlatformVersion=10.0.19041.0 /p:LanguageStandard=stdcpp17
+      run: msbuild src/CalcManager/CalcManager.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v142 /p:WindowsTargetPlatformVersion=10.0.20348.0 /p:LanguageStandard=stdcpp17
 
     # Publicar Skia.Gtk (carpeta completa, no single-file)
     - name: Publish Skia.Gtk
@@ -48,7 +40,7 @@ jobs:
       run: |
         Copy-Item "src/CalcManager/x64/Release/CalcManager/CalcManager.dll" -Destination "publish/CalcManager.dll" -Force
 
-    # Copiar las DLLs del runtime de C++ (VC++ redistributable)
+    # Copiar las DLLs del runtime de C++ (VC++ redistributable) desde el runner
     - name: Copy VC++ runtime DLLs
       run: |
         $vcRedistDir = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\v143\onecore\x64"
@@ -60,6 +52,7 @@ jobs:
           Copy-Item "$vcRedistDir\msvcp140_2.dll" -Destination "publish\" -Force
           Copy-Item "$vcRedistDir\vccorlib140.dll" -Destination "publish\" -Force
         } else {
+          # Fallback: copiar desde System32 (puede funcionar)
           Copy-Item "C:\Windows\System32\vcruntime140.dll" -Destination "publish\" -Force
           Copy-Item "C:\Windows\System32\msvcp140.dll" -Destination "publish\" -Force
         }
