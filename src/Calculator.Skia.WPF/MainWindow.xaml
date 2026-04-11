@@ -1,29 +1,35 @@
-<Window x:Class="Calculator.MainWindow"
+<Window x:Class="Calculator.Skia.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Uno Calculator" Height="450" Width="350">
-    <Grid>
-        <!-- Display -->
-        <TextBox x:Name="Display" FontSize="28" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="60" IsReadOnly="True" TextAlignment="Right" Margin="10"/>
-
-        <!-- Botonera -->
-        <UniformGrid Rows="5" Columns="4" Margin="10,80,10,10">
-            <Button Content="7" Click="Button_Click"/>
-            <Button Content="8" Click="Button_Click"/>
-            <Button Content="9" Click="Button_Click"/>
-            <Button Content="/" Click="Button_Click"/>
-            <Button Content="4" Click="Button_Click"/>
-            <Button Content="5" Click="Button_Click"/>
-            <Button Content="6" Click="Button_Click"/>
-            <Button Content="*" Click="Button_Click"/>
-            <Button Content="1" Click="Button_Click"/>
-            <Button Content="2" Click="Button_Click"/>
-            <Button Content="3" Click="Button_Click"/>
-            <Button Content="-" Click="Button_Click"/>
-            <Button Content="0" Click="Button_Click"/>
-            <Button Content="C" Click="Clear_Click"/>
-            <Button Content="=" Click="Button_Click"/>
-            <Button Content="+" Click="Button_Click"/>
+        xmlns:viewModels="clr-namespace:Calculator.Skia.WPF.ViewModels"
+        Title="Calculadora" Height="450" Width="400">
+    <Window.DataContext>
+        <viewModels:CalculatorViewModel x:Name="ViewModel"/>
+    </Window.DataContext>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" Text="{Binding DisplayText}" FontSize="24" IsReadOnly="True" Margin="0,0,0,10"
+                 Background="{Binding IsError, Converter={x:Null}}"/>
+        <UniformGrid Grid.Row="1" Rows="5" Columns="4">
+            <Button Content="7" Click="Button_Click" Tag="7"/>
+            <Button Content="8" Click="Button_Click" Tag="8"/>
+            <Button Content="9" Click="Button_Click" Tag="9"/>
+            <Button Content="/" Click="Button_Click" Tag="/"/>
+            <Button Content="4" Click="Button_Click" Tag="4"/>
+            <Button Content="5" Click="Button_Click" Tag="5"/>
+            <Button Content="6" Click="Button_Click" Tag="6"/>
+            <Button Content="*" Click="Button_Click" Tag="*"/>
+            <Button Content="1" Click="Button_Click" Tag="1"/>
+            <Button Content="2" Click="Button_Click" Tag="2"/>
+            <Button Content="3" Click="Button_Click" Tag="3"/>
+            <Button Content="-" Click="Button_Click" Tag="-"/>
+            <Button Content="0" Click="Button_Click" Tag="0"/>
+            <Button Content="C" Click="Button_Click" Tag="C"/>
+            <Button Content="=" Click="Button_Click" Tag="=" Background="LightBlue"/>
+            <Button Content="+" Click="Button_Click" Tag="+"/>
         </UniformGrid>
     </Grid>
 </Window>
